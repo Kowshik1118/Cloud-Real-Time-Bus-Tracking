@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Bus Tracking System</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+    <h1>🚌 Cloud-Based Real-Time Bus Tracking</h1>
+    <p>Live GPS Simulation • Cloud Monitoring Dashboard</p><div class="userbar">
+
+    <div class="welcome-text">
+        Welcome, <span class="username">{{ user_name }}</span>
+    </div>
+
+    <div class="user-links">
+        <a href="/logout">Logout</a>
+        <a href="/admin">Admin</a>
+    </div>
+
+</div>
+</header>
+
+<div class="container">
+    <section class="dashboard">
+        <div class="card"><h3>Total Buses</h3><p id="totalBuses">0</p></div>
+        <div class="card"><h3>Active Buses</h3><p id="activeBuses">0</p></div>
+        <div class="card"><h3>GPS Status</h3><p id="gpsStatus">LIVE</p></div>
+        <div class="card"><h3>Last Updated</h3><p id="lastUpdated">--</p></div>
+    </section>
+
+    <section class="main-content">
+        <div class="map-container">
+            <h2>📍 Live Bus Locations</h2>
+            <div id="map"></div>
+            <p class="hint">Bus positions automatically update every 2 seconds.</p>
+        </div>
+
+        <div class="bus-list">
+            <h2>🚌 Bus Fleet</h2>
+            <input id="searchBox" class="search" placeholder="Search bus or route..." oninput="filterBuses()">
+            <div id="busList"></div>
+        </div>
+    </section>
+</div>
+
+<footer>
+    <p>Cloud-Based Real-Time Bus Tracking System</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

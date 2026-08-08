@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <header>
+        <h1>🚌 Admin Dashboard</h1>
+        <p>Manage and monitor the bus fleet</p>
+    </header>
+
+    <div class="admin-container">
+        <h2>Add New Bus</h2>
+        <form id="addForm">
+            <input id="newBusNumber" placeholder="Bus number e.g. BUS-111" required>
+            <input id="newRoute" placeholder="Route" required>
+            <input id="newLat" type="number" step="any" value="12.9716" placeholder="Latitude">
+            <input id="newLng" type="number" step="any" value="77.5946" placeholder="Longitude">
+            <input id="newSpeed" type="number" value="30" placeholder="Speed">
+            <button type="submit">Add Bus</button>
+        </form>
+
+        <p id="message"></p>
+        <hr>
+
+        <h2>Update Bus GPS</h2>
+        <form id="updateForm">
+            <input id="busId" type="number" placeholder="Bus ID" required>
+            <input id="latitude" type="number" step="any" placeholder="Latitude" required>
+            <input id="longitude" type="number" step="any" placeholder="Longitude" required>
+            <input id="speed" type="number" value="30" placeholder="Speed">
+            <button type="submit">Update Location</button>
+        </form>
+
+        <hr>
+        <h2>Current Fleet</h2>
+        <div id="adminBusList"></div>
+    </div>
+
+    <script>
+        async function loadBuses() {
+            const response = await fetch("/api/buses");
+            const buses = await response.json();
+            const container = document.getElementById("adminBusList");
+            container.innerHTML = "";
+
+            buses.forEach(bus => {
+                const div = document.createElement("div");
+                div.className = "admin-bus";
+                div.innerHTML = `
+            <strong>ID:</strong> ${bus.id}<br>
+            <strong>Bus:</strong> ${bus.bus_number}<br>
+            <strong>Route:</strong> ${bus.route}<br>
+            <strong>Location:</strong> ${Number(bus.latitude).toFixed(5)}, ${Number(bus.longitude).toFixed(5)}<br>
+            <strong>Speed:</strong> ${bus.speed} km/h<br>
+            <strong>Status:</strong> ${bus.status}
+        `;
+                container.appendChild(div);
+            });
+        }
+
+        document.getElementById("addForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const response = await fetch("/api/buses", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    bus_number: document.getElementById("newBusNumber").value,
+                    route: document.getElementById("newRoute").value,
+                    latitude: parseFloat(document.getElementById("newLat").value),
+                    longitude: parseFloat(document.getElementById("newLng").value),
+                    speed: parseFloat(document.getElementById("newSpeed").value)
+                })
+            });
+            const result = await response.json();
+            document.getElementById("message").innerText = result.message || result.error;
+            this.reset();
+            loadBuses();
+        });
+
+        document.getElementById("updateForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const id = document.getElementById("busId").value;
+            const response = await fetch(`/api/buses/${id}/location`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    latitude: parseFloat(document.getElementById("latitude").value),
+                    longitude: parseFloat(document.getElementById("longitude").value),
+                    speed: parseFloat(document.getElementById("speed").value),
+                    status: "Active"
+                })
+            });
+            const result = await response.json();
+            document.getElementById("message").innerText = result.message || result.error;
+            loadBuses();
+        });
+
+        loadBuses();
+        setInterval(loadBuses, 2000);
+    </script>
+</body>
+
+</html>
